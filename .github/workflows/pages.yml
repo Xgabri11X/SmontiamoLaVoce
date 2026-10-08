@@ -28,9 +28,10 @@ jobs:
           channel: stable
           cache: true
 
-      - name: Add web target
-        run: ./tools/bootstrap_web.sh
-
+-     name: Add web target
+       run: |
+      flutter create . --platforms=web
+      rm -f test/widget_test.dart
       - name: Dependencies
         run: flutter pub get
 
