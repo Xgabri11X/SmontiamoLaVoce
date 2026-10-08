@@ -65,3 +65,44 @@ Il riconoscimento è pensato per un laboratorio didattico, non per fonetica clin
 ## Nota sull'animazione
 
 Il disegno di bocca e lingua è qualitativo: F1 e F2 non determinano in modo univoco la geometria reale del tratto vocale.
+
+## Versione web — GitHub Pages
+
+La stessa app può essere eseguita interamente nel browser. Registrazione, FFT, riconoscimento vocalico e sintesi restano locali sul dispositivo: GitHub Pages serve soltanto i file statici dell'app.
+
+### Prova locale
+
+```bash
+./tools/bootstrap_web.sh
+flutter run -d chrome
+```
+
+### Build locale per GitHub Pages
+
+```bash
+./tools/build_web.sh /SmontiamoLaVoce/
+```
+
+La build viene generata in `build/web/`.
+
+### Pubblicazione automatica
+
+È incluso `.github/workflows/pages.yml`. A ogni push su `main`, GitHub Actions:
+
+1. installa Flutter 3.47.6;
+2. crea il target web;
+3. esegue i test;
+4. compila la release web con il `base-href` corretto per il repository;
+5. pubblica `build/web` su GitHub Pages.
+
+Prima del primo deploy, su GitHub apri una sola volta:
+
+**Settings → Pages → Build and deployment → Source → GitHub Actions**
+
+Per il repository `Xgabri11X/SmontiamoLaVoce`, l'indirizzo previsto è:
+
+```text
+https://xgabri11x.github.io/SmontiamoLaVoce/
+```
+
+Il browser chiederà il permesso per il microfono al primo utilizzo. GitHub Pages usa HTTPS, requisito necessario per l'accesso al microfono nei browser moderni.
