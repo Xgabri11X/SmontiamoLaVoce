@@ -1,6 +1,16 @@
-# Smontiamo la voce! — Student App v0.2
+# Smontiamo la voce! — Student App v0.3
 
-App Android offline per il laboratorio di acustica: registrazione di una vocale, fondamentale, FFT, armoniche, riconoscimento indicativo A/E/I/O/U, sintesi additiva e spazio vocalico F1–F2 con animazione di bocca e lingua.
+App Android/web per il laboratorio di acustica: registrazione, fondamentale, FFT, armoniche, vocali A/E/I/O/U, spazio F1–F2 e una nuova sezione sulle consonanti con fricative, voicing, chiusure e burst.
+
+
+## Novità v0.3 — Consonanti
+
+- Nuova sezione **Costruiamo le consonanti**.
+- Analisi delle fricative sostenute **S/Z/F/V/SC (ʃ)** con indice di voicing, centroide spettrale e spettro fino a 10 kHz.
+- Profilo didattico indicativo della famiglia fricativa, senza presentarlo come riconoscimento fonetico clinico.
+- Sintetizzatore semplice: punto di restringimento + corde vocali ON/OFF per mostrare fisicamente la differenza S↔Z e F↔V.
+- Esperimento sulle occlusive **P/T/K** tramite sequenze APA/ATA/AKA: stima della chiusura e rilevamento del burst sulla forma d'onda.
+- Tutta l'analisi resta locale anche nella versione web.
 
 ## Novità v0.2
 

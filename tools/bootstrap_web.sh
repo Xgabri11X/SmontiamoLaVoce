@@ -5,6 +5,7 @@ cd "$(dirname "$0")/.."
 
 echo "==> Creo/aggiorno il target Flutter Web"
 flutter create . --platforms=web
+rm -f test/widget_test.dart
 
 echo "==> Personalizzo titolo e manifest"
 python3 - <<'PY'
@@ -17,7 +18,7 @@ text = re.sub(r'<title>.*?</title>', '<title>Smontiamo la voce!</title>', text, 
 if '<meta name="description"' not in text:
     text = text.replace(
         '<head>',
-        '<head>\n  <meta name="description" content="Laboratorio interattivo su suono, Fourier, armoniche e vocali.">',
+        '<head>\n  <meta name="description" content="Laboratorio interattivo su suono, Fourier, armoniche, vocali e consonanti.">',
         1,
     )
 index.write_text(text, encoding='utf-8')
@@ -27,7 +28,7 @@ if manifest.exists():
     data = json.loads(manifest.read_text(encoding='utf-8'))
     data['name'] = 'Smontiamo la voce!'
     data['short_name'] = 'Smontiamo la voce!'
-    data['description'] = 'Laboratorio interattivo su suono, Fourier, armoniche e vocali.'
+    data['description'] = 'Laboratorio interattivo su suono, Fourier, armoniche, vocali e consonanti.'
     data['display'] = 'standalone'
     data['background_color'] = '#071521'
     data['theme_color'] = '#071521'

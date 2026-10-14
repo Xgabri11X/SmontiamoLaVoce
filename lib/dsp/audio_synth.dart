@@ -114,6 +114,74 @@ class AudioSynth {
     return wavFromSamples(_normalize(de), sourceSampleRate);
   }
 
+  static Uint8List fricativeWav({
+    required String place,
+    required bool voiced,
+    int sampleRate = 44100,
+    double seconds = 1.8,
+  }) {
+    final nSamples = (sampleRate * seconds).round();
+    final random = math.Random(24680);
+    final white = List<double>.generate(
+      nSamples,
+      (_) => random.nextDouble() * 2.0 - 1.0,
+    );
+
+    // A small first-difference stage suppresses DC/very-low-frequency noise
+    // before the constriction filter shapes the frication spectrum.
+    final hiss = List<double>.filled(nSamples, 0.0);
+    var previous = 0.0;
+    for (var i = 0; i < nSamples; i++) {
+      hiss[i] = white[i] - 0.72 * previous;
+      previous = white[i];
+    }
+
+    late List<double> shaped;
+    switch (place) {
+      case 'alveolar':
+        final a = _resonator(hiss, sampleRate, 6900, 2100);
+        final b = _resonator(hiss, sampleRate, 9000, 3000);
+        shaped = List<double>.generate(nSamples, (i) => a[i] + 0.42 * b[i]);
+        break;
+      case 'postalveolar':
+        final a = _resonator(hiss, sampleRate, 3100, 1500);
+        final b = _resonator(hiss, sampleRate, 4700, 2300);
+        shaped = List<double>.generate(nSamples, (i) => a[i] + 0.50 * b[i]);
+        break;
+      case 'labiodental':
+      default:
+        final a = _resonator(hiss, sampleRate, 4200, 4100);
+        final b = _resonator(hiss, sampleRate, 7200, 5200);
+        shaped = List<double>.generate(nSamples, (i) => 0.78 * a[i] + 0.35 * b[i]);
+        break;
+    }
+
+    final out = List<double>.filled(nSamples, 0.0);
+    final f0 = 145.0;
+    final harmonicCount = math.min(32, (sampleRate * 0.44 / f0).floor());
+    final phases = List<double>.generate(
+      harmonicCount,
+      (_) => random.nextDouble() * 2 * math.pi,
+    );
+
+    for (var i = 0; i < nSamples; i++) {
+      final t = i / sampleRate;
+      final env = _softEnvelope(t, seconds);
+      var buzz = 0.0;
+      if (voiced) {
+        for (var h = 1; h <= harmonicCount; h++) {
+          buzz += math.pow(h, -1.22).toDouble() *
+              math.sin(2 * math.pi * h * f0 * t + phases[h - 1]);
+        }
+      }
+      final noiseGain = voiced ? 0.62 : 1.0;
+      final voiceGain = voiced ? 0.72 : 0.0;
+      out[i] = env * (noiseGain * shaped[i] + voiceGain * buzz);
+    }
+
+    return wavFromSamples(_normalize(out), sampleRate);
+  }
+
   static List<double> _resonator(
     List<double> input,
     int sampleRate,

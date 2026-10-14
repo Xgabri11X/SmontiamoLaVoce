@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../models/lab_session.dart';
+import 'consonants_page.dart';
 import 'harmonics_page.dart';
 import 'record_page.dart';
 import 'vowel_space_page.dart';
@@ -30,7 +31,7 @@ class HomePage extends StatelessWidget {
             ),
             const SizedBox(height: 10),
             Text(
-              'Gioca con onde, armoniche e vocali.',
+              'Gioca con onde, armoniche, vocali e consonanti.',
               style: Theme.of(context).textTheme.titleMedium?.copyWith(color: Colors.white70),
             ),
             const SizedBox(height: 26),
@@ -53,6 +54,13 @@ class HomePage extends StatelessWidget {
               title: '3 · Muovi la vocale',
               subtitle: 'Parti dalla vocale riconosciuta e trascina F1 e F2 guardando lingua e bocca.',
               onTap: () => _push(context, const VowelSpacePage()),
+            ),
+            const SizedBox(height: 12),
+            _HeroCard(
+              icon: Icons.record_voice_over_rounded,
+              title: '4 · Costruisci una consonante',
+              subtitle: 'Confronta S/Z, esplora il rumore di F e SC e trova chiusura e burst in P/T/K.',
+              onTap: () => _push(context, const ConsonantsPage()),
             ),
             const SizedBox(height: 22),
             Card(

@@ -1,7 +1,7 @@
 name: smontiamo_la_voce
-description: Laboratorio interattivo su suono, Fourier, armoniche e formanti.
+description: Laboratorio interattivo su suono, Fourier, armoniche, vocali e consonanti.
 publish_to: 'none'
-version: 0.2.0+2
+version: 0.3.0+3
 
 environment:
   sdk: '>=3.11.0 <4.0.0'
