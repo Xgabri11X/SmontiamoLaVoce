@@ -52,7 +52,7 @@ class HomePage extends StatelessWidget {
             _HeroCard(
               icon: Icons.face_rounded,
               title: '3 · Muovi la vocale',
-              subtitle: 'Parti dalla vocale riconosciuta e trascina F1 e F2 guardando lingua e bocca.',
+              subtitle: 'Muovi F1 e F2 e confronta i trapezi vocalici di italiano, inglese, francese e tedesco.',
               onTap: () => _push(context, const VowelSpacePage()),
             ),
             const SizedBox(height: 12),

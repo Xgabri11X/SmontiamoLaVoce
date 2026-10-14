@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:smontiamo_la_voce/dsp/spectral_analyzer.dart';
+import 'package:smontiamo_la_voce/models/vowel_inventory.dart';
 
 void main() {
   test('riconosce circa 220 Hz anche con seconda armonica forte', () {
@@ -49,6 +50,19 @@ void main() {
     expect(analyzer.estimateVowel(a, f0)?.label, 'A');
     expect(analyzer.estimateVowel(i, f0)?.label, 'I');
   });
+
+
+  test('inventari vocalici multilingue restano nel piano F1-F2', () {
+    expect(vowelInventories.map((v) => v.code).toSet(), {'it', 'en', 'fr', 'de'});
+    for (final inventory in vowelInventories) {
+      expect(inventory.points.length, greaterThanOrEqualTo(5));
+      for (final vowel in inventory.points) {
+        expect(vowel.f1, inInclusiveRange(250.0, 900.0));
+        expect(vowel.f2, inInclusiveRange(500.0, 2600.0));
+        expect(vowel.example, isNotEmpty);
+      }
+    }
+  });
 }
 
 List<double> _syntheticVowel(
@@ -80,3 +94,4 @@ double _resonance(double f, double center, double bandwidth) {
   final x = (f - center) / (bandwidth * 0.5);
   return 1 / (1 + x * x);
 }
+

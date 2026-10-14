@@ -1,7 +1,14 @@
-# Smontiamo la voce! — Student App v0.3
+# Smontiamo la voce! — Student App v0.4
 
-App Android/web per il laboratorio di acustica: registrazione, fondamentale, FFT, armoniche, vocali A/E/I/O/U, spazio F1–F2 e una nuova sezione sulle consonanti con fricative, voicing, chiusure e burst.
+App Android/web per il laboratorio di acustica: registrazione, fondamentale, FFT, armoniche, vocali, spazi F1–F2 multilingue e consonanti con fricative, voicing, chiusure e burst.
 
+## Novità v0.4 — Spazi vocalici multilingue
+
+- Selettore rapido tra **Italiano, English, Français e Deutsch** nella pagina F1–F2.
+- Ogni lingua mostra il proprio insieme di vocali con simbolo IPA, target F1/F2 indicativo ed esempio lessicale.
+- Toccando una vocale l’app porta il sintetizzatore su quel punto e la riproduce con la voce LPC registrata oppure con la sorgente sintetica.
+- Cambiando lingua il punto F1/F2 corrente resta fermo: in questo modo si può confrontare la stessa configurazione acustica rispetto a inventari vocalici diversi.
+- I target sono volutamente didattici e non diagnostici; accento, parlante e contesto spostano le formanti. Dittonghi e nasalità non sono ridotti artificialmente a un singolo punto F1–F2.
 
 ## Novità v0.3 — Consonanti
 

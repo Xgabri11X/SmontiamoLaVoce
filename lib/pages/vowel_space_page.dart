@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../dsp/audio_synth.dart';
 import '../models/lab_session.dart';
+import '../models/vowel_inventory.dart';
 import '../services/player_service.dart';
 import '../widgets/mouth_painter.dart';
 import '../widgets/vowel_space_painter.dart';
@@ -19,6 +20,8 @@ class _VowelSpacePageState extends State<VowelSpacePage> {
   late double f2;
   late bool useNatural;
   String? detectedLabel;
+  VowelPoint? selectedPreset;
+  VowelInventory inventory = vowelInventories.first;
 
   @override
   void initState() {
@@ -37,7 +40,8 @@ class _VowelSpacePageState extends State<VowelSpacePage> {
     super.dispose();
   }
 
-  double get _pitch => (LabSession.instance.f0?.clamp(110.0, 260.0) ?? 180.0).toDouble();
+  double get _pitch =>
+      (LabSession.instance.f0?.clamp(110.0, 260.0) ?? 180.0).toDouble();
 
   Future<void> _play() async {
     final session = LabSession.instance;
@@ -56,9 +60,20 @@ class _VowelSpacePageState extends State<VowelSpacePage> {
     setState(() {
       f1 = point.f1;
       f2 = point.f2;
+      selectedPreset = point;
       detectedLabel = null;
     });
     _play();
+  }
+
+  void _setInventory(VowelInventory next) {
+    setState(() {
+      inventory = next;
+      selectedPreset = null;
+      // Keep the physical F1-F2 position fixed so students can compare where
+      // the same sound falls relative to different language inventories.
+      if (next.code != 'it') detectedLabel = null;
+    });
   }
 
   void _moveTo(Offset localPosition, Size size) {
@@ -66,6 +81,7 @@ class _VowelSpacePageState extends State<VowelSpacePage> {
     setState(() {
       f1 = values.$1;
       f2 = values.$2;
+      selectedPreset = null;
       detectedLabel = null;
     });
   }
@@ -83,12 +99,18 @@ class _VowelSpacePageState extends State<VowelSpacePage> {
                 padding: const EdgeInsets.all(14),
                 child: Row(
                   children: [
-                    const Icon(Icons.my_location_rounded, color: Color(0xFF58D5E8)),
+                    const Icon(
+                      Icons.my_location_rounded,
+                      color: Color(0xFF58D5E8),
+                    ),
                     const SizedBox(width: 11),
                     Expanded(
                       child: Text(
-                        'Hai registrato una $detectedLabel: partiamo automaticamente dalla sua zona nel trapezio.',
-                        style: const TextStyle(fontWeight: FontWeight.w700, height: 1.3),
+                        'Hai registrato una $detectedLabel: partiamo automaticamente dalla sua zona nel trapezio italiano.',
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w700,
+                          height: 1.3,
+                        ),
                       ),
                     ),
                   ],
@@ -99,12 +121,38 @@ class _VowelSpacePageState extends State<VowelSpacePage> {
           ],
           const Text(
             'La voce è uno strumento con una cassa di risonanza che possiamo cambiare.',
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800, height: 1.2),
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.w800,
+              height: 1.2,
+            ),
           ),
           const SizedBox(height: 8),
           const Text(
             'Trascina il punto. F1 segue soprattutto apertura/altezza della lingua; F2 segue soprattutto la posizione avanti–indietro.',
             style: TextStyle(color: Colors.white70, height: 1.35),
+          ),
+          const SizedBox(height: 16),
+          const Text(
+            'Confronta le lingue',
+            style: TextStyle(fontWeight: FontWeight.w800),
+          ),
+          const SizedBox(height: 8),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: vowelInventories.map((item) {
+              return ChoiceChip(
+                label: Text(item.name),
+                selected: item.code == inventory.code,
+                onSelected: (_) => _setInventory(item),
+              );
+            }).toList(),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            inventory.note,
+            style: const TextStyle(color: Colors.white60, height: 1.3),
           ),
           const SizedBox(height: 14),
           if (LabSession.instance.hasRecording)
@@ -112,17 +160,37 @@ class _VowelSpacePageState extends State<VowelSpacePage> {
               value: useNatural,
               onChanged: (v) => setState(() => useNatural = v),
               contentPadding: const EdgeInsets.symmetric(horizontal: 4),
-              title: const Text('Usa la mia voce', style: TextStyle(fontWeight: FontWeight.w800)),
-              subtitle: const Text('LPC: conserva la sorgente reale e cambia soprattutto le risonanze.'),
+              title: const Text(
+                'Usa la mia voce',
+                style: TextStyle(fontWeight: FontWeight.w800),
+              ),
+              subtitle: const Text(
+                'LPC: conserva la sorgente reale e cambia soprattutto le risonanze.',
+              ),
             ),
           const SizedBox(height: 10),
           Card(
             child: Padding(
               padding: const EdgeInsets.all(14),
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  Row(
+                    children: [
+                      Text(
+                        'Spazio vocalico · ${inventory.name}',
+                        style: const TextStyle(fontWeight: FontWeight.w800),
+                      ),
+                      const Spacer(),
+                      const Text(
+                        '← F2 alto · F2 basso →',
+                        style: TextStyle(color: Colors.white54, fontSize: 11),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
                   SizedBox(
-                    height: 290,
+                    height: 300,
                     child: LayoutBuilder(
                       builder: (context, c) {
                         final size = Size(c.maxWidth, c.maxHeight);
@@ -136,7 +204,11 @@ class _VowelSpacePageState extends State<VowelSpacePage> {
                             _play();
                           },
                           child: CustomPaint(
-                            painter: VowelSpacePainter(f1: f1, f2: f2),
+                            painter: VowelSpacePainter(
+                              f1: f1,
+                              f2: f2,
+                              points: inventory.points,
+                            ),
                             size: Size.infinite,
                           ),
                         );
@@ -147,10 +219,26 @@ class _VowelSpacePageState extends State<VowelSpacePage> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('F1 ${f1.round()} Hz', style: const TextStyle(fontWeight: FontWeight.w800)),
-                      Text('F2 ${f2.round()} Hz', style: const TextStyle(fontWeight: FontWeight.w800)),
+                      Text(
+                        'F1 ${f1.round()} Hz',
+                        style: const TextStyle(fontWeight: FontWeight.w800),
+                      ),
+                      Text(
+                        'F2 ${f2.round()} Hz',
+                        style: const TextStyle(fontWeight: FontWeight.w800),
+                      ),
                     ],
                   ),
+                  if (selectedPreset != null) ...[
+                    const SizedBox(height: 8),
+                    Text(
+                      '${selectedPreset!.label} · esempio: ${selectedPreset!.example}',
+                      style: const TextStyle(
+                        color: Color(0xFFFFC777),
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ],
                 ],
               ),
             ),
@@ -162,7 +250,10 @@ class _VowelSpacePageState extends State<VowelSpacePage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('Bocca e lingua · schema didattico', style: TextStyle(fontWeight: FontWeight.w800)),
+                  const Text(
+                    'Bocca e lingua · schema didattico',
+                    style: TextStyle(fontWeight: FontWeight.w800),
+                  ),
                   const SizedBox(height: 8),
                   SizedBox(
                     height: 230,
@@ -176,17 +267,29 @@ class _VowelSpacePageState extends State<VowelSpacePage> {
             ),
           ),
           const SizedBox(height: 12),
+          Text(
+            'Vocali di riferimento · ${inventory.name}',
+            style: const TextStyle(fontWeight: FontWeight.w800),
+          ),
+          const SizedBox(height: 8),
           Wrap(
             spacing: 8,
             runSpacing: 8,
-            children: vowelPoints
-                .map((v) => OutlinedButton(onPressed: () => _setFromPoint(v), child: Text(v.label)))
+            children: inventory.points
+                .map(
+                  (v) => OutlinedButton(
+                    onPressed: () => _setFromPoint(v),
+                    child: Text('${v.label} · ${v.example}'),
+                  ),
+                )
                 .toList(),
           ),
           const SizedBox(height: 14),
           FilledButton.icon(
             onPressed: _play,
-            style: FilledButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 15)),
+            style: FilledButton.styleFrom(
+              padding: const EdgeInsets.symmetric(vertical: 15),
+            ),
             icon: const Icon(Icons.volume_up_rounded),
             label: const Text('ASCOLTA QUESTA POSIZIONE'),
           ),
@@ -195,7 +298,7 @@ class _VowelSpacePageState extends State<VowelSpacePage> {
             child: Padding(
               padding: EdgeInsets.all(16),
               child: Text(
-                'Il riconoscimento della vocale confronta l’inviluppo delle armoniche con regioni tipiche di A, E, I, O e U. Le frequenze reali variano da persona a persona: il punto iniziale è quindi una stima didattica, non una misura fonetica clinica.',
+                'I punti delle lingue sono target didattici indicativi, non valori universali: F1 e F2 cambiano con parlante, accento e contesto. Il riconoscimento automatico iniziale resta volutamente limitato alle cinque vocali italiane A/E/I/O/U. I dittonghi richiedono una traiettoria nel tempo e le vocali nasali anche informazioni acustiche oltre a F1 e F2.',
                 style: TextStyle(color: Colors.white70, height: 1.35),
               ),
             ),
